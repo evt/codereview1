@@ -70,19 +70,10 @@ func Test_doubleSumMap(t *testing.T) {
 func getTestData() *TestData {
 	once := &sync.Once{}
 	once.Do(func() {
-		m := make(map[int]bool)
 		sums := make(map[int]bool)
-		nums := make([]int, 2000)
 		var target int
 		r := rand.New(rand.NewSource(time.Now().Unix()))
-		for len(m) < 2000 {
-			m[r.Intn(3000)] = true
-		}
-		i := 0
-		for key, _ := range m {
-			nums[i] = key
-			i++
-		}
+		nums := r.Perm(2000)
 		for i := 0; i < len(nums)-1; i++ {
 			for j := i + 1; j < len(nums); j++ {
 				if _, exist := sums[nums[i]+nums[j]]; exist {
