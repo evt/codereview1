@@ -84,7 +84,7 @@ func getTestData() *TestData {
 			}
 		}
 		for key, val := range sums {
-			if val == true {
+			if val {
 				target = key
 				break
 			}
