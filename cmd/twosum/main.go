@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -12,23 +11,27 @@ func main() {
 }
 
 func run() error {
-	nums := []int{2, 7, 11, 15}
-	target := 9
-	fmt.Printf("Nums before: %#v\n", nums)
-	res := twoSum(nums, target)
-	fmt.Printf("Nums after: %#v\n", nums)
-	fmt.Printf("Result: %#v\n", res)
-
 	return nil
 }
 
-func twoSum(nums []int, target int) []int {
+func doubleSumCycle(nums []int, target int) []int {
 	for i := 0; i < len(nums)-1; i++ {
 		for j := i + 1; j < len(nums); j++ {
 			if nums[i]+nums[j] == target {
 				return []int{i, j}
 			}
 		}
+	}
+	return nil
+}
+
+func doubleSumMap(nums []int, target int) []int {
+	m := make(map[int]int, len(nums))
+	for idx, x := range nums {
+		if index, founded := m[target-x]; founded {
+			return []int{index, idx}
+		}
+		m[x] = idx
 	}
 	return nil
 }
