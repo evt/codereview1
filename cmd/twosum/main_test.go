@@ -2,36 +2,48 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
+	"sync"
 	"testing"
+	"time"
 )
 
-var cases = []struct {
-	data     []int
-	target   int
-	expected []int
-}{
-	{
-		[]int{1, 2, 3},
-		3,
-		[]int{0, 1},
-	},
-	{
-		[]int{2, 3, 4, 5},
-		8,
-		[]int{1, 3},
-	},
-	{
-		[]int{3, 3},
-		6,
-		[]int{0, 1},
-	},
-	{
-		[]int{3, 3},
-		8,
-		nil,
-	},
+type TestData struct {
+	data   []int
+	target int
 }
+
+var (
+	data TestData
+
+	cases = []struct {
+		data     []int
+		target   int
+		expected []int
+	}{
+		{
+			[]int{1, 2, 3},
+			3,
+			[]int{0, 1},
+		},
+		{
+			[]int{2, 3, 4, 5},
+			8,
+			[]int{1, 3},
+		},
+		{
+			[]int{3, 3},
+			6,
+			[]int{0, 1},
+		},
+		{
+			[]int{3, 3},
+			8,
+			nil,
+		},
+	}
+)
 
 func Test_doubleSumCycle(t *testing.T) {
 	for _, cs := range cases {
@@ -55,14 +67,54 @@ func Test_doubleSumMap(t *testing.T) {
 	}
 }
 
+func getTestData() *TestData {
+	once := &sync.Once{}
+	once.Do(func() {
+		m := make(map[int]bool)
+		sums := make(map[int]bool)
+		nums := make([]int, 2000)
+		var target int
+		r := rand.New(rand.NewSource(time.Now().Unix()))
+		for len(m) < 2000 {
+			m[r.Intn(3000)] = true
+		}
+		i := 0
+		for key, _ := range m {
+			nums[i] = key
+			i++
+		}
+		for i := 0; i < len(nums)-1; i++ {
+			for j := i + 1; j < len(nums); j++ {
+				if _, exist := sums[nums[i]+nums[j]]; exist {
+					sums[nums[i]+nums[j]] = false
+				} else {
+					sums[nums[i]+nums[j]] = true
+				}
+			}
+		}
+		for key, val := range sums {
+			if val == true {
+				target = key
+				break
+			}
+		}
+
+		data.data = nums
+		data.target = target
+	})
+	return &data
+}
+
 func Benchmark_doubleSumCycle(b *testing.B) {
+	data := getTestData()
 	for i := 0; i < b.N; i++ {
-		doubleSumCycle([]int{2, 4, 5, 7, 11, 3, 6, 13, 10, 32, 23, 22, 44, 33, 1, 14, 42, 17, 26, 80}, 102)
+		doubleSumCycle(data.data, data.target)
 	}
 }
 
 func Benchmark_doubleSumMap(b *testing.B) {
+	data := getTestData()
 	for i := 0; i < b.N; i++ {
-		doubleSumMap([]int{2, 4, 5, 7, 11, 3, 6, 13, 10, 32, 23, 22, 44, 33, 1, 14, 42, 17, 26, 80}, 102)
+		doubleSumMap(data.data, data.target)
 	}
 }
